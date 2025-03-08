@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './services/api_services.dart';
 
 class ProgressBar extends StatefulWidget {
   const ProgressBar({super.key});
@@ -19,19 +20,19 @@ class _ProgressBarState extends State<ProgressBar> {
   int totalHeartPoints = 0;
 
   Future<void> updateProgress() async {
-    int newSteps = int.tryParse(stepsController.text.trim()) ?? 0;
-    int newHeartPoints = int.tryParse(heartController.text.trim()) ?? 0;
+    int newSteps = int.tryParse(stepsController.text) ?? 0;
+    int newHeartPoints = int.tryParse(heartController.text) ?? 0;
 
-    totalSteps += newSteps;
-    totalHeartPoints += newHeartPoints;
+    var data = await ApiService.updateProgress(newSteps, newHeartPoints);
+    print("API Response: $data");
 
     setState(() {
+      totalSteps = data["steps"] ?? 0;
+      totalHeartPoints = data["heartPoints"] ?? 0;
       stepsProgress = (totalSteps / 100).clamp(0.0, 1.0);
       heartProgress = (totalHeartPoints / 100).clamp(0.0, 1.0);
+      print("Updated UI -> Steps: $totalSteps, HeartPoints: $totalHeartPoints");
     });
-
-    stepsController.clear();
-    heartController.clear();
   }
 
   @override
@@ -107,58 +108,57 @@ class _ProgressBarState extends State<ProgressBar> {
 
           const SizedBox(height: 30),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.directions_walk,
-                        color: Colors.blue,
-                        size: 30,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: stepsController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: "Steps",
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.favorite, color: Colors.red, size: 30),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: heartController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: "Heart Points",
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 20),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       Expanded(
+          //         child: Row(
+          //           children: [
+          //             const Icon(
+          //               Icons.directions_walk,
+          //               color: Colors.blue,
+          //               size: 30,
+          //             ),
+          //             const SizedBox(width: 10),
+          //             Expanded(
+          //               child: TextField(
+          //                 controller: stepsController,
+          //                 keyboardType: TextInputType.number,
+          //                 decoration: const InputDecoration(
+          //                   labelText: "Steps",
+          //                   border: OutlineInputBorder(),
+          //                 ),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //       const SizedBox(width: 20),
+          //       Expanded(
+          //         child: Row(
+          //           children: [
+          //             const Icon(Icons.favorite, color: Colors.red, size: 30),
+          //             const SizedBox(width: 10),
+          //             Expanded(
+          //               child: TextField(
+          //                 controller: heartController,
+          //                 keyboardType: TextInputType.number,
+          //                 decoration: const InputDecoration(
+          //                   labelText: "Heart Points",
+          //                   border: OutlineInputBorder(),
+          //                 ),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
-          const SizedBox(height: 20),
-
+          // const SizedBox(height: 20),
           ElevatedButton(
             onPressed: updateProgress,
             child: const Text("Update"),
